@@ -1,3 +1,3 @@
 {
-	"id": "",  // Not linked to the Encore Platform yet
+	"id": "uptime-7chi", // Not linked to the Encore Platform yet
 }

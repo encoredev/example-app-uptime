@@ -3,6 +3,7 @@ package site
 import (
 	"context"
 
+	"encore.dev/pubsub"
 	"encore.dev/storage/sqldb"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,6 +30,9 @@ type AddParams struct {
 func (s *Service) Add(ctx context.Context, p *AddParams) (*Site, error) {
 	site := &Site{URL: p.URL}
 	if err := s.db.Create(site).Error; err != nil {
+		return nil, err
+	}
+	if _, err := SiteAddedTopic.Publish(ctx, site); err != nil {
 		return nil, err
 	}
 	return site, nil
@@ -84,3 +88,7 @@ func initService() (*Service, error) {
 	}
 	return &Service{db: db}, nil
 }
+
+var SiteAddedTopic = pubsub.NewTopic[*Site]("site-added", pubsub.TopicConfig{
+	DeliveryGuarantee: pubsub.AtLeastOnce,
+})

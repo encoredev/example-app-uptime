@@ -3,7 +3,12 @@ import React, { FC, useEffect, useState } from "react";
 import Client, { Environment, Local, monitor, site } from "./client";
 import { DateTime } from "luxon";
 
-const client = new Client(import.meta.env.DEV ? Local : Environment("staging"));
+const prID = import.meta.env.VITE_VERCEL_GIT_PULL_REQUEST_ID;
+const isDev = import.meta.env.DEV;
+
+const client = new Client(
+  prID ? Environment(`pr${prID}`) : isDev ? Local : Environment("staging")
+);
 
 function App() {
   return (

@@ -117,3 +117,9 @@ type TransitionEvent struct {
 var TransitionTopic = pubsub.NewTopic[*TransitionEvent]("uptime-transition", pubsub.TopicConfig{
 	DeliveryGuarantee: pubsub.AtLeastOnce,
 })
+
+var _ = pubsub.NewSubscription(site.SiteAddedTopic, "check-site", pubsub.SubscriptionConfig[*site.Site]{
+	Handler: func(ctx context.Context, s *site.Site) error {
+		return Check(ctx, s.ID)
+	},
+})
