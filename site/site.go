@@ -2,6 +2,7 @@ package site
 
 import (
 	"context"
+	"fmt"
 
 	"encore.dev/cron"
 	"encore.dev/pubsub"
@@ -30,6 +31,14 @@ type AddParams struct {
 //
 //encore:api public method=POST path=/site
 func (s *Service) Add(ctx context.Context, p *AddParams) (*Site, error) {
+	// Prevent abuse by limiting the number of sites to 20.
+	var count int64
+	if err := s.db.Model(&Site{}).Count(&count).Error; err != nil {
+		return nil, err
+	} else if count >= 20 {
+		return nil, fmt.Errorf("too many sites")
+	}
+
 	site := &Site{URL: p.URL}
 	if err := s.db.Create(site).Error; err != nil {
 		return nil, err
