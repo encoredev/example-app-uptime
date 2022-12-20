@@ -110,18 +110,18 @@ const SiteList: FC = () => {
                     </tr>
                   )}
                   {data!.sites.map((site) => {
-                    const checkedAt = status?.sites[site.id]?.checked_at;
-                    const dt = checkedAt && DateTime.fromISO(checkedAt);
+                    const st = status?.sites[site.id];
+                    const dt = st && DateTime.fromISO(st.checked_at);
                     return (
                       <tr key={site.id}>
                         <td className="px-3 py-4 text-sm">
                           <div className="flex items-center gap-2">
                             <span className="text-gray-700">{site.url}</span>
-                            <StatusBadge status={status?.sites[site.id]} />
+                            <StatusBadge status={st} />
                           </div>
                           {dt && (
                             <div className="text-gray-400">
-                              Last checked <TimeSince dt={dt} />
+                              Last checked <TimeDelta dt={dt} />
                             </div>
                           )}
                         </td>
@@ -236,22 +236,37 @@ const validURL = (url: string) => {
 const StatusBadge: FC<{ status: monitor.SiteStatus | undefined }> = ({
   status,
 }) => {
-  const [bg, text, label] = {
-    true: ["bg-green-100", "text-green-800", "Up"],
-    false: ["bg-red-100", "text-red-800", "Down"],
-    undefined: ["bg-gray-100", "text-gray-800", "Unknown"],
-  }["" + status?.up]!;
+  const up = status?.up;
+  return up ? (
+    <Badge color="green">Up</Badge>
+  ) : up === false ? (
+    <Badge color="red">Down</Badge>
+  ) : (
+    <Badge color="gray">Unknown</Badge>
+  );
+};
+
+const Badge: FC<{
+  color: "green" | "red" | "orange" | "gray";
+  children?: React.ReactNode;
+}> = ({ color, children }) => {
+  const [bgColor, textColor] = {
+    green: ["bg-green-100", "text-green-800"],
+    red: ["bg-red-100", "text-red-800"],
+    orange: ["bg-orange-100", "text-orange-800"],
+    gray: ["bg-gray-100", "text-gray-800"],
+  }[color]!;
 
   return (
     <span
-      className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium uppercase ${bg} ${text}`}
+      className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium uppercase ${bgColor} ${textColor}`}
     >
-      {label}
+      {children}
     </span>
   );
 };
 
-const TimeSince: FC<{ dt: DateTime }> = ({ dt }) => {
+const TimeDelta: FC<{ dt: DateTime }> = ({ dt }) => {
   const compute = () => dt.toRelative();
   const [str, setStr] = useState(compute());
 
