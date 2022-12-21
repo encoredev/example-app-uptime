@@ -55,9 +55,9 @@ func check(ctx context.Context, site *site.Site) error {
 	}
 
 	_, err = sqldb.Exec(ctx, `
-		INSERT INTO checks (site_id, up, checked_at)
-		VALUES ($1, $2, NOW())
-	`, site.ID, result.Up)
+		INSERT INTO checks (site_id, up, tls_expiry, checked_at)
+		VALUES ($1, $2, $3, NOW())
+	`, site.ID, result.Up, result.TLSExpiry)
 	return err
 }
 

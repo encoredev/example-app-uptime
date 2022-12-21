@@ -65,6 +65,12 @@ export namespace monitor {
      */
     export interface PingResponse {
         up: boolean
+        /**
+         * TLSExpiry specifies when the TLS certificate expires,
+         * or nil if there is no TLS certificate or if the site
+         * couldn't be reached (Up == false).
+         */
+        "tls_expiry": string
     }
 
     /**
@@ -74,6 +80,7 @@ export namespace monitor {
     export interface SiteStatus {
         up: boolean
         "checked_at": string
+        "tls_expiry": string
     }
 
     /**

@@ -10,8 +10,9 @@ import (
 // SiteStatus describes the current status of a site
 // and when it was last checked.
 type SiteStatus struct {
-	Up        bool      `json:"up"`
-	CheckedAt time.Time `json:"checked_at"`
+	Up        bool       `json:"up"`
+	CheckedAt time.Time  `json:"checked_at"`
+	TLSExpiry *time.Time `json:"tls_expiry"`
 }
 
 // StatusResponse is the response type from the Status endpoint.
@@ -26,7 +27,7 @@ type StatusResponse struct {
 //encore:api public method=GET path=/status
 func Status(ctx context.Context) (*StatusResponse, error) {
 	rows, err := sqldb.Query(ctx, `
-		SELECT DISTINCT ON (site_id) site_id, up, checked_at
+		SELECT DISTINCT ON (site_id) site_id, up, tls_expiry, checked_at
 		FROM checks
 		ORDER BY site_id, checked_at DESC
 	`)
@@ -39,7 +40,7 @@ func Status(ctx context.Context) (*StatusResponse, error) {
 	for rows.Next() {
 		var siteID int
 		var status SiteStatus
-		if err := rows.Scan(&siteID, &status.Up, &status.CheckedAt); err != nil {
+		if err := rows.Scan(&siteID, &status.Up, &status.TLSExpiry, &status.CheckedAt); err != nil {
 			return nil, err
 		}
 		result[siteID] = status

@@ -33,3 +33,25 @@ func TestPing(t *testing.T) {
 		}
 	}
 }
+
+func TestPing_TLSExpiry(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		URL     string
+		HasCert bool
+	}{
+		{"encore.dev", true},
+		{"google.com", true},
+		{"invalid://scheme", false},
+		{"http://neverssl.com/", false},
+	}
+
+	for _, test := range tests {
+		resp, err := Ping(ctx, test.URL)
+		if err != nil {
+			t.Errorf("url %s: unexpected error: %v", test.URL, err)
+		} else if hasCert := resp.TLSExpiry != nil; hasCert != test.HasCert {
+			t.Errorf("url %s: got cert=%v, want %v", test.URL, hasCert, test.HasCert)
+		}
+	}
+}

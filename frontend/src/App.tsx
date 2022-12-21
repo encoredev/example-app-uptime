@@ -98,6 +98,12 @@ const SiteList: FC = () => {
                     </th>
                     <th
                       scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      TLS Certificate
+                    </th>
+                    <th
+                      scope="col"
                       className="relative py-3.5 pl-3 pr-4 sm:pr-6"
                     >
                       <span className="sr-only"></span>
@@ -130,6 +136,9 @@ const SiteList: FC = () => {
                               Last checked <TimeDelta dt={dt} />
                             </div>
                           )}
+                        </td>
+                        <td className="px-3 py-4 text-sm">
+                          <TLSCertBadge status={st} />
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <button
@@ -249,6 +258,33 @@ const StatusBadge: FC<{ status: monitor.SiteStatus | undefined }> = ({
     <Badge color="red">Down</Badge>
   ) : (
     <Badge color="gray">Unknown</Badge>
+  );
+};
+
+const TLSCertBadge: FC<{ status: monitor.SiteStatus | undefined }> = ({
+  status,
+}) => {
+  if (status?.up === undefined) {
+    return <Badge color="gray">Unknown</Badge>;
+  }
+
+  const exp = status?.tls_expiry && DateTime.fromISO(status.tls_expiry);
+  if (!exp) {
+    return <Badge color="gray">No certificate</Badge>;
+  }
+
+  const now = DateTime.now();
+  const expIn = exp.diff(now, "days");
+  const tlsExpired = expIn.days < 0;
+
+  return tlsExpired ? (
+    <Badge color="red">
+      Expired <TimeDelta dt={exp} />
+    </Badge>
+  ) : (
+    <Badge color={expIn.days < 7 ? "orange" : "green"}>
+      Expires <TimeDelta dt={exp} />
+    </Badge>
   );
 };
 
