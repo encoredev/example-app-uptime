@@ -13,7 +13,7 @@ const prID = import.meta.env.VITE_VERCEL_GIT_PULL_REQUEST_ID;
 const isDev = import.meta.env.DEV;
 
 const client = new Client(
-  prID ? PreviewEnv(prID) : isDev ? Local : Environment("staging")
+  prID ? PreviewEnv(prID) : isDev ? Local : Environment("testing")
 );
 
 function App() {
